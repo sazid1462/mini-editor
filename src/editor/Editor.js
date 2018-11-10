@@ -83,16 +83,6 @@ export default class MiniEditor extends Component<Props, State> {
    }
 
    /**
-    * A function to determine whether a URL has an image extension.
-    *
-    * @param {String} url
-    * @return {Boolean}
-    */
-   isImage = (url: string) => {
-      return !!imageExtensions.find(url.endsWith)
-   }
-
-   /**
     * A change function to standardize inserting images.
     *
     * @param {Editor} editor
@@ -139,6 +129,10 @@ export default class MiniEditor extends Component<Props, State> {
                {this.renderBlockButton('bulleted-list', 'format_list_bulleted')}
                <Button onMouseDown={this.onClickImage}>
                   <Icon>image</Icon>
+               </Button>
+               <Button onMouseDown={this.onClickUpload}>
+                  <Icon>cloud_upload</Icon>
+                  <input ref="fileInput" type="file" id="file-input" onChange={this.onFileSelect} accept="image/*" multiple/>
                </Button>
             </Toolbar>
             <Editor
@@ -202,6 +196,23 @@ export default class MiniEditor extends Component<Props, State> {
    }
 
    /**
+    * On file select from the file browser
+    */
+   onFileSelect = () => {
+      for (const file of this.refs.fileInput.files) {
+         const reader = new FileReader()
+         const [mime] = file.type.split('/')
+         if (mime !== 'image') continue
+
+         reader.addEventListener('load', () => {
+            this.editor.command(this.insertImage, reader.result)
+         })
+
+         reader.readAsDataURL(file)
+      }
+   }
+
+   /**
     * On change, save the new `value`.
     *
     * @param {Editor} editor
@@ -219,7 +230,24 @@ export default class MiniEditor extends Component<Props, State> {
       event.preventDefault()
       const src = window.prompt('Enter the URL of the image:')
       if (!src) return
+      console.log(src)
       this.editor.command(this.insertImage, src)
+   }
+
+   /**
+   * On clicking the upload button, open the file browser.
+   *
+   * @param {Event} event
+   */
+   onClickUpload = (event: Event) => {
+      event.preventDefault()
+      let fileInput = this.refs.fileInput
+      fileInput.click()
+
+      // const src = window.prompt('Enter the URL of the image:')
+      // if (!src) return
+      // console.log(src)
+      // this.editor.command(this.insertImage, src)
    }
 
    /**

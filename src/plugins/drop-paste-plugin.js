@@ -4,8 +4,6 @@ import React from 'react'
 import styled from 'react-emotion'
 import imageExtensions from 'image-extensions'
 
-type Props = any
-
 export default function DropPastePlugin(options: any) {
 
    const Image = styled('img')`
@@ -22,7 +20,10 @@ export default function DropPastePlugin(options: any) {
     * @return {Boolean}
     */
    let isImage = (url: string) => {
-      return !!imageExtensions.find(url.endsWith)
+      let ext = url.slice((url.lastIndexOf(".") - 1 >>> 0) + 2).toLowerCase()
+      return !!imageExtensions.find((el: string) => {
+         return el == ext
+      })
    }
 
    let insertImage = options.insertImage
@@ -57,13 +58,14 @@ export default function DropPastePlugin(options: any) {
       }
 
       if (type === 'text') {
-         if (isUrl(text)) return next()
+         if (!isUrl(text)) return next()
          if (!isImage(text)) return next()
+         console.log(text, editor)
          editor.command(insertImage, text, target)
          return
       }
 
-      next()
+      return next()
    }
 
    return ({
