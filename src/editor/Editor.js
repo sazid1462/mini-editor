@@ -23,12 +23,25 @@ const DEFAULT_NODE = 'paragraph'
  */
 const SCHEMA = {
    document: {
+      nodes: [
+         { match: { type: 'title' }, min: 1, max: 1 },
+         { match: { type: 'paragraph' }, min: 1 },
+         { match: { type: 'image' }, min: 0 }
+      ],
       last: { type: 'paragraph' },
-      normalize: (editor, { code, node, child }) => {
+      normalize: (editor, { code, node, child, index }) => {
          switch (code) {
             case 'last_child_type_invalid': {
                const paragraph = Block.create('paragraph')
                return editor.insertNodeByKey(node.key, node.nodes.size, paragraph)
+            }
+            case 'child_type_invalid': {
+               const type = index === 0 ? 'title' : 'paragraph'
+               return editor.setNodeByKey(child.key, type)
+            }
+            case 'child_min_invalid': {
+               const block = Block.create(index === 0 ? 'title' : 'paragraph')
+               return editor.insertNodeByKey(node.key, index, block)
             }
          }
       },
@@ -56,8 +69,8 @@ export default class MiniEditor extends Component<Props, State> {
       TextStylePlugin(),
       NodeRenderer(),
       MarkRenderer(),
-      DropPastePlugin({handlerType: 'onDrop', insertImage: this.insertImage}),
-      DropPastePlugin({handlerType: 'onPaste', insertImage: this.insertImage})
+      DropPastePlugin({ handlerType: 'onDrop', insertImage: this.insertImage }),
+      DropPastePlugin({ handlerType: 'onPaste', insertImage: this.insertImage })
    ]
 
    /**
@@ -132,7 +145,7 @@ export default class MiniEditor extends Component<Props, State> {
                </Button>
                <Button onMouseDown={this.onClickUpload}>
                   <Icon>cloud_upload</Icon>
-                  <input ref="fileInput" type="file" id="file-input" onChange={this.onFileSelect} accept="image/*" multiple/>
+                  <input ref="fileInput" type="file" id="file-input" onChange={this.onFileSelect} accept="image/*" multiple />
                </Button>
             </Toolbar>
             <Editor
@@ -243,11 +256,6 @@ export default class MiniEditor extends Component<Props, State> {
       event.preventDefault()
       let fileInput = this.refs.fileInput
       fileInput.click()
-
-      // const src = window.prompt('Enter the URL of the image:')
-      // if (!src) return
-      // console.log(src)
-      // this.editor.command(this.insertImage, src)
    }
 
    /**

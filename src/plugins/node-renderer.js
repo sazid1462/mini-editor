@@ -24,21 +24,27 @@ export default function NodeRenderer(options: any) {
          const { attributes, children, node, isFocused } = props
 
          switch (node.type) {
+            case 'title':
+               return <h2 style={{textAlign: "center"}} {...attributes}>{children}</h2>
+            case 'paragraph':
+               return <p style={{textAlign: "left"}} {...attributes}>{children}</p>
             case 'block-quote':
-               return <blockquote {...attributes}>{children}</blockquote>
+               return <blockquote style={{textAlign: "left"}} {...attributes}>{children}</blockquote>
             case 'bulleted-list':
-               return <ul {...attributes}>{children}</ul>
+               return <ul style={{textAlign: "left"}} {...attributes}>{children}</ul>
             case 'heading-one':
-               return <h1 {...attributes}>{children}</h1>
+               return <h1 style={{textAlign: "left"}} {...attributes}>{children}</h1>
             case 'heading-two':
-               return <h2 {...attributes}>{children}</h2>
+               return <h2 style={{textAlign: "left"}} {...attributes}>{children}</h2>
             case 'list-item':
-               return <li {...attributes}>{children}</li>
+               return <li style={{textAlign: "left"}} {...attributes}>{children}</li>
             case 'numbered-list':
-               return <ol {...attributes}>{children}</ol>
+               return <ol style={{textAlign: "left"}} {...attributes}>{children}</ol>
             case 'image': {
                const src = node.data.get('src')
-               return <Image src={src} selected={isFocused} {...attributes} />
+               return <span style={{width: '100%', display: "inline-block"}}>
+                  <Image style={{margin: "auto"}} src={src} selected={isFocused} {...attributes} />
+               </span>
             }
             default:
                return next()
