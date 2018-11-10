@@ -3,9 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "emotion": "^9.2.12",
     "immutable": "^4.0.0-rc.12",
+    "is-hotkey": "^0.1.4",
     "react": "^16.6.1",
     "react-dom": "^16.6.1",
+    "react-emotion": "^9.2.12",
     "react-scripts": "2.1.1",
     "slate": "^0.44.4",
     "slate-react": "^0.21.10"
@@ -27,8 +30,6 @@
   ],
   "devDependencies": {
     "flow-bin": "^0.86.0",
-    "flow-typed": "^2.5.1",
-    "jest": "^20.0.4",
-    "jest-cli": "^20.0.4"
+    "flow-typed": "^2.5.1"
   }
 }
