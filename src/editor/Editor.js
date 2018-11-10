@@ -1,11 +1,14 @@
 import React, { Component } from 'react'
 import { Editor } from 'slate-react'
-import { Value } from 'slate'
+import imageExtensions from 'image-extensions'
+import { Value, Block } from 'slate'
+
 import initialValue from '../resources/value'
 import { Button, Icon, Toolbar } from './components'
 import TextStylePlugin from '../plugins/text-style-plugin'
 import NodeRenderer from '../plugins/node-renderer'
 import MarkRenderer from '../plugins/mark-renderer'
+import DropPastePlugin from '../plugins/drop-paste-plugin'
 
 /**
  * Define the default node type.
@@ -13,6 +16,29 @@ import MarkRenderer from '../plugins/mark-renderer'
  * @type {String}
  */
 const DEFAULT_NODE = 'paragraph'
+/**
+ * The editor's schema.
+ *
+ * @type {Object}
+ */
+const SCHEMA = {
+   document: {
+      last: { type: 'paragraph' },
+      normalize: (editor, { code, node, child }) => {
+         switch (code) {
+            case 'last_child_type_invalid': {
+               const paragraph = Block.create('paragraph')
+               return editor.insertNodeByKey(node.key, node.nodes.size, paragraph)
+            }
+         }
+      },
+   },
+   blocks: {
+      image: {
+         isVoid: true,
+      },
+   },
+}
 
 type Props = any;
 type State = {
@@ -29,15 +55,17 @@ export default class MiniEditor extends Component<Props, State> {
    plugins = [
       TextStylePlugin(),
       NodeRenderer(),
-      MarkRenderer()
+      MarkRenderer(),
+      DropPastePlugin({handlerType: 'onDrop', insertImage: this.insertImage}),
+      DropPastePlugin({handlerType: 'onPaste', insertImage: this.insertImage})
    ]
 
    /**
-   * Check if the current selection has a mark with `type` in it.
-   *
-   * @param {String} type
-   * @return {Boolean}
-   */
+    * Check if the current selection has a mark with `type` in it.
+    *
+    * @param {String} type
+    * @return {Boolean}
+    */
    hasMark = (type: string) => {
       const { value } = this.state
       return value.activeMarks.some(mark => mark.type == type)
@@ -52,6 +80,34 @@ export default class MiniEditor extends Component<Props, State> {
    hasBlock = (type: string) => {
       const { value } = this.state
       return value.blocks.some(node => node.type == type)
+   }
+
+   /**
+    * A function to determine whether a URL has an image extension.
+    *
+    * @param {String} url
+    * @return {Boolean}
+    */
+   isImage = (url: string) => {
+      return !!imageExtensions.find(url.endsWith)
+   }
+
+   /**
+    * A change function to standardize inserting images.
+    *
+    * @param {Editor} editor
+    * @param {String} src
+    * @param {Range} target
+    */
+   insertImage = (editor: Editor, src: string, target: Range) => {
+      if (target) {
+         editor.select(target)
+      }
+
+      editor.insertBlock({
+         type: 'image',
+         data: { src },
+      })
    }
 
    /**
@@ -81,10 +137,14 @@ export default class MiniEditor extends Component<Props, State> {
                {this.renderBlockButton('block-quote', 'format_quote')}
                {this.renderBlockButton('numbered-list', 'format_list_numbered')}
                {this.renderBlockButton('bulleted-list', 'format_list_bulleted')}
+               <Button onMouseDown={this.onClickImage}>
+                  <Icon>image</Icon>
+               </Button>
             </Toolbar>
             <Editor
                spellCheck
                autoFocus
+               schema={SCHEMA}
                plugins={this.plugins}
                placeholder="Enter some rich text..."
                ref={this.ref}
@@ -146,8 +206,20 @@ export default class MiniEditor extends Component<Props, State> {
     *
     * @param {Editor} editor
     */
-   onChange = ({ value }:{ value: Value }) => {
+   onChange = ({ value }: { value: Value }) => {
       this.setState({ value })
+   }
+
+   /**
+   * On clicking the image button, prompt for an image and insert it.
+   *
+   * @param {Event} event
+   */
+   onClickImage = (event: Event) => {
+      event.preventDefault()
+      const src = window.prompt('Enter the URL of the image:')
+      if (!src) return
+      this.editor.command(this.insertImage, src)
    }
 
    /**

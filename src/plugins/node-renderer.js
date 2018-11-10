@@ -1,9 +1,17 @@
 import { Editor } from 'slate-react'
 import React from 'react'
+import styled from 'react-emotion'
 
 type Props = any
 
 export default function NodeRenderer(options: any) {
+
+   const Image = styled('img')`
+      display: block;
+      max-width: 100%;
+      max-height: 20em;
+      box-shadow: ${props => (props.selected ? '0 0 0 2px blue;' : 'none')};
+   `
    return ({
       /**
        * Render a Slate node.
@@ -13,7 +21,7 @@ export default function NodeRenderer(options: any) {
        */
 
       renderNode: (props: Props, editor: Editor, next: any) => {
-         const { attributes, children, node } = props
+         const { attributes, children, node, isFocused } = props
 
          switch (node.type) {
             case 'block-quote':
@@ -28,6 +36,10 @@ export default function NodeRenderer(options: any) {
                return <li {...attributes}>{children}</li>
             case 'numbered-list':
                return <ol {...attributes}>{children}</ol>
+            case 'image': {
+               const src = node.data.get('src')
+               return <Image src={src} selected={isFocused} {...attributes} />
+            }
             default:
                return next()
          }

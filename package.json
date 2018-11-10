@@ -4,8 +4,10 @@
   "private": true,
   "dependencies": {
     "emotion": "^9.2.12",
+    "image-extensions": "^1.1.0",
     "immutable": "^4.0.0-rc.12",
     "is-hotkey": "^0.1.4",
+    "is-url": "^1.2.4",
     "react": "^16.6.1",
     "react-dom": "^16.6.1",
     "react-emotion": "^9.2.12",
