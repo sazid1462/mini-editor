@@ -29,7 +29,7 @@
         "quotes": "off",
         "semi": [
             "error",
-            "always"
+            "never"
         ],
         "no-unused-vars": "warn",
         "no-console": "off"
