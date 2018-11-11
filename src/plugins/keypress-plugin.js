@@ -53,6 +53,7 @@ export default function KeyPressPlugin(options: any) {
             }
          } else if (isSaveHotkey(event)) {
             event.preventDefault()
+            if (!options.context.state.documentIsValid) return
             const contentJSON = options.context.state.value.toJSON()
             const content = JSON.stringify({blocksLimit: options.context.state.blocksLimit, 
                isLimit: options.context.state.isLimit, value: contentJSON})

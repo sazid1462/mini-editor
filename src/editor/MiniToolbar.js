@@ -161,7 +161,6 @@ export default class MiniToolbar extends Component<Props, State> {
     * On changing the maximum allowed number of top level blocks
     */
    onBlocksLimitChange = (event: any) => {
-      console.log(event)
       this.props.context.setBlocksLimit(event.target.value)
    }
 
@@ -169,6 +168,7 @@ export default class MiniToolbar extends Component<Props, State> {
     * On clicking the save button to save the content in local store
     */
    onClickSave = (event: Event) => {
+      if (!this.props.documentIsValid) return
       event.preventDefault()
       const contentJSON = this.props.context.state.value.toJSON()
       const content = JSON.stringify({blocksLimit: this.props.blocksLimit, isLimit: this.props.isLimit, value: contentJSON})

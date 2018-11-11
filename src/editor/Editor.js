@@ -90,7 +90,7 @@ export default class MiniEditor extends Component<Props, State> {
    setIsBlocksLimit = (isLimit: boolean) => {
       let newJSONValue = Object.assign({}, this.state.oldJSONValue, {isLimit: isLimit})
       let documentIsChanged = JSON.stringify(newJSONValue) != JSON.stringify(this.state.oldJSONValue)
-      let documentIsValid = !(this.state.isLimit && (this.editor.getBlocksCount() > this.state.blocksLimit))
+      let documentIsValid = !(isLimit && (this.editor.getBlocksCount() > this.state.blocksLimit))
       this.setState({isLimit: isLimit, newJSONValue: newJSONValue, documentIsChanged: documentIsChanged, documentIsValid: documentIsValid})
    }
 
@@ -158,8 +158,7 @@ export default class MiniEditor extends Component<Props, State> {
    onChange = ({ value }: { value: Value }) => {
       let newJSONValue = {blocksLimit: this.state.blocksLimit, isLimit: this.state.isLimit, value: value.toJSON()}
       let documentIsChanged = JSON.stringify(newJSONValue) != JSON.stringify(this.state.oldJSONValue)
-      let documentIsValid = !(this.state.isLimit && (this.editor.getBlocksCount() > this.state.blocksLimit))
-      console.log(value.toJSON())
+      let documentIsValid = !(this.state.isLimit && (this.editor.getBlocksCount(value.toJSON().document.nodes) > this.state.blocksLimit))
       this.setState({ value: value, documentIsChanged: documentIsChanged, newJSONValue: newJSONValue, documentIsValid: documentIsValid })
    }
 }

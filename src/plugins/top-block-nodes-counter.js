@@ -13,16 +13,14 @@ const TopBlocksCounter = styled('span')`
 type Props = any;
 
 export default function TopBlocksCount(options: any) {
-   let totalBlocksCount = 0
+   let getBlocksCount = (nodes) => {
+      return nodes.reduce((memo, b) => memo + (b.object=='block' ? 1 : 0), 0)
+   }
    return {
       renderEditor(props: Props, editor: Editor, next: any) {
          const children = next()
-         const blocksCount = props.value.document.nodes
-            .reduce((memo, b) => memo + (b.object=='block' ? 1 : 0), 0)
-         totalBlocksCount = blocksCount
-         editor.getBlocksCount = () => {
-            return totalBlocksCount
-         }
+         const blocksCount = getBlocksCount(props.value.document.nodes)
+         editor.getBlocksCount = getBlocksCount
          return (
             <div>
                <TopBlocksCounter>Top Blocks: {blocksCount}</TopBlocksCounter>
