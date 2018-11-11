@@ -3,12 +3,12 @@ import { Editor } from 'slate-react'
 import styled from 'react-emotion'
 
 const TopBlocksCounter = styled('span')`
-   margin-top: 10px;
-   padding: 12px;
-   padding-right: 17px;
-   background-color: #dadada;
    display: block;
    text-align: right;
+   width: 100%;
+   right: 30px;
+   top: 15px;
+   position: fixed;
 `
 type Props = any;
 
@@ -25,8 +25,8 @@ export default function TopBlocksCount(options: any) {
          }
          return (
             <div>
-               <div>{children}</div>
                <TopBlocksCounter>Top Blocks: {blocksCount}</TopBlocksCounter>
+               <div>{children}</div>
             </div>
          )
       }

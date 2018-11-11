@@ -130,15 +130,17 @@ export default class MiniEditor extends Component<Props, State> {
          <div>
             <MiniToolbar editor={this.state.editor} context={this} isLimit={this.state.isLimit} blocksLimit={this.state.blocksLimit}
                documentIsChanged={this.state.documentIsChanged} documentIsValid={this.state.documentIsValid} />
-            <Editor
-               spellCheck
-               autoFocus
-               plugins={this.plugins}
-               placeholder="Enter some rich text..."
-               ref={this.ref}
-               value={this.state.value}
-               onChange={this.onChange}
-            />
+            <div style={{top: '40px', position: 'relative', overflowY: "auto", maxHeight: 'calc(100vh - 60px)', background: 'white'}}>
+               <Editor style={{ padding: '20px', minHeight: 'calc(100vh - 100px)' }}
+                  spellCheck
+                  autoFocus
+                  plugins={this.plugins}
+                  placeholder="Enter some rich text..."
+                  ref={this.ref}
+                  value={this.state.value}
+                  onChange={this.onChange}
+               />
+            </div>
          </div>
       )
    }

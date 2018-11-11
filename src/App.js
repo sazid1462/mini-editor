@@ -7,7 +7,7 @@ import './App.css'
 import MiniEditor from './editor/Editor'
 
 export const AppName = styled('span')`
-   position: absolute;
+   position: fixed;
    display: block;
    text-align: left;
    font-weight: bold;

@@ -29,9 +29,13 @@ export const Menu = styled('div')`
 `
 
 export const Toolbar = styled(Menu)`
-   position: relative;
-   padding: 0px 18px 10px;
-   margin: 0px -20px;
+   position: fixed;
+   padding: 15px 0px 10px;
+   margin: -20px -20px;
    border-bottom: 2px solid #bfbfbf;
+   z-index: 100;
    margin-bottom: 20px;
+   width: 100%;
+   display: block;
+   height: 30px;
 `
