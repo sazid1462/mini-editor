@@ -37,10 +37,10 @@ export default class MiniToolbar extends Component<Props, State> {
          {this.renderBlockButton('block-quote', 'format_quote')}
          {this.renderBlockButton('numbered-list', 'format_list_numbered')}
          {this.renderBlockButton('bulleted-list', 'format_list_bulleted')}
-         <Button onMouseDown={this.onClickImage}>
+         <Button onMouseDown={this.onClickImage} active={true}>
             <Icon>image</Icon>
          </Button>
-         <Button onMouseDown={this.onClickUpload}>
+         <Button onMouseDown={this.onClickUpload} active={true}>
             <Icon>cloud_upload</Icon>
             <input ref="fileInput" type="file" id="file-input" onChange={this.onFileSelect} accept="image/*" multiple />
          </Button>
