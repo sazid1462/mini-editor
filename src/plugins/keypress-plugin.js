@@ -12,6 +12,7 @@ const isUnderlinedHotkey = isKeyHotkey('mod+u')
 const isCodeHotkey = isKeyHotkey('mod+`')
 const isTabKey = isKeyHotkey('tab')
 const isShiftTabKey = isKeyHotkey('shift+tab')
+const isSaveHotkey = isKeyHotkey('mod+s')
 
 export default function KeyPressPlugin(options: any) {
    return ({
@@ -40,7 +41,6 @@ export default function KeyPressPlugin(options: any) {
                const { document } = value
                const parentType = document.getClosest(editor.value.focusBlock.key, parent => 
                   (parent.type=='bulleted-list' || parent.type=='numbered-list')).type
-               console.log(parentType)
                event.preventDefault()
                if (isTabKey(event)) {
                   editor.wrapBlock(parentType)
@@ -51,6 +51,15 @@ export default function KeyPressPlugin(options: any) {
             } else {
                return next()
             }
+         } else if (isSaveHotkey(event)) {
+            event.preventDefault()
+            const contentJSON = options.context.state.value.toJSON()
+            const content = JSON.stringify({blocksLimit: options.context.state.blocksLimit, 
+               isLimit: options.context.state.isLimit, value: contentJSON})
+            localStorage.setItem('content', content)
+            options.context.updateContent({blocksLimit: options.context.state.blocksLimit, 
+               isLimit: options.context.state.isLimit, value: contentJSON})
+            return
          } else {
             return next()
          }

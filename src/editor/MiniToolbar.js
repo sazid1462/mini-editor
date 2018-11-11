@@ -10,8 +10,6 @@ import MiniEditor from './Editor'
 
 /**
  * Define the default node type.
- *
- * @type {String}
  */
 const DEFAULT_NODE = 'paragraph'
 
@@ -28,9 +26,6 @@ export default class MiniToolbar extends Component<Props, State> {
    }
 
    render() {
-      // if (this.editor && this.editor.value)
-      //    console.log(this.editor.value.document.text, this.props.context.state.value.document.text)
-      // let isChanged = (this.editor && this.editor.value) ? this.editor.value.document.text != this.props.context.state.value.document.text : false
       return <Toolbar>
          {this.renderMarkButton('bold', 'format_bold')}
          {this.renderMarkButton('italic', 'format_italic')}
@@ -66,7 +61,6 @@ export default class MiniToolbar extends Component<Props, State> {
    /**
     * Check if the current selection has a mark with `type` in it.
     *
-    * @param {String} type
     * @return {Boolean}
     */
    hasMark = (type: string) => {
@@ -77,7 +71,6 @@ export default class MiniToolbar extends Component<Props, State> {
    /**
     * Check if the any of the currently selected blocks are of `type`.
     *
-    * @param {String} type
     * @return {Boolean}
     */
    hasBlock = (type: string) => {
@@ -85,6 +78,9 @@ export default class MiniToolbar extends Component<Props, State> {
       return value.blocks.some(node => node.type == type)
    }
 
+   /**
+    * Render the input box to set the maximum number of allowed top level blocks
+    */
    renderBlocksLimitInputBox = () => {
       if (this.props.isLimit) {
          return <span><label>Maximum Blocks:<Input type='number' min={1} value={this.props.blocksLimit} onChange={this.onBlocksLimitChange}
@@ -98,8 +94,6 @@ export default class MiniToolbar extends Component<Props, State> {
    /**
    * Render a mark-toggling toolbar button.
    *
-   * @param {String} type
-   * @param {String} icon
    * @return {Element}
    */
    renderMarkButton = (type: string, icon: string) => {
@@ -118,8 +112,6 @@ export default class MiniToolbar extends Component<Props, State> {
    /**
     * Render a block-toggling toolbar button.
     *
-    * @param {String} type
-    * @param {String} icon
     * @return {Element}
     */
    renderBlockButton = (type: string, icon: string) => {
@@ -158,15 +150,24 @@ export default class MiniToolbar extends Component<Props, State> {
       }
    }
 
+   /**
+    * On clicking the checkbox to set whether to limit the allowed number of top level blocks
+    */
    onClickLimit = (event: any) => {
       this.props.context.setIsBlocksLimit(event.target.checked)
    }
 
+   /**
+    * On changing the maximum allowed number of top level blocks
+    */
    onBlocksLimitChange = (event: any) => {
       console.log(event)
       this.props.context.setBlocksLimit(event.target.value)
    }
 
+   /**
+    * On clicking the save button to save the content in local store
+    */
    onClickSave = (event: Event) => {
       event.preventDefault()
       const contentJSON = this.props.context.state.value.toJSON()
@@ -175,6 +176,9 @@ export default class MiniToolbar extends Component<Props, State> {
       this.props.context.updateContent({blocksLimit: this.props.blocksLimit, isLimit: this.props.isLimit, value: contentJSON})
    }
 
+   /**
+    * On clicking the discard changes button
+    */
    onClickRevertChanges = (event: Event) => {
       event.preventDefault()
       this.props.context.reloadContent()
@@ -182,8 +186,6 @@ export default class MiniToolbar extends Component<Props, State> {
 
    /**
    * On clicking the image button, prompt for an image and insert it.
-   *
-   * @param {Event} event
    */
    onClickImage = (event: Event) => {
       event.preventDefault()
@@ -195,8 +197,6 @@ export default class MiniToolbar extends Component<Props, State> {
 
    /**
    * On clicking the upload button, open the file browser.
-   *
-   * @param {Event} event
    */
    onClickUpload = (event: Event) => {
       event.preventDefault()
@@ -206,9 +206,6 @@ export default class MiniToolbar extends Component<Props, State> {
 
    /**
     * When a mark button is clicked, toggle the current mark.
-    *
-    * @param {Event} event
-    * @param {String} type
     */
    onClickMark = (event: Event, type: string) => {
       event.preventDefault()
@@ -218,9 +215,6 @@ export default class MiniToolbar extends Component<Props, State> {
 
    /**
     * When a block button is clicked, toggle the block type.
-    *
-    * @param {Event} event
-    * @param {String} type
     */
    onClickBlock = (event: Event, type: string) => {
       event.preventDefault()
