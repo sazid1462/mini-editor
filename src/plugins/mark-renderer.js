@@ -1,5 +1,6 @@
 import { Editor } from 'slate-react'
 import React from 'react'
+import styled from 'react-emotion'
 
 type Props = any
 
@@ -13,7 +14,7 @@ export default function MarkRenderer(options: any) {
        */
 
       renderMark: (props: Props, editor: Editor, next: any) => {
-         const { children, mark, attributes } = props
+         const { children, mark, node, attributes } = props
 
          switch (mark.type) {
             case 'bold':

@@ -12,6 +12,11 @@ export default function NodeRenderer(options: any) {
       max-height: 20em;
       box-shadow: ${props => (props.selected ? '0 0 0 2px blue;' : 'none')};
    `
+   // const BulletedListWrapper = styled('ul')`
+   //    ${props =>({...props.attributes}) }
+   //    padding-left: ${props => (props.level ? 0.75 * props.level : 0.75)}em;
+   // `
+   
    return ({
       /**
        * Render a Slate node.
@@ -36,7 +41,7 @@ export default function NodeRenderer(options: any) {
                return <h1 style={{textAlign: "left"}} {...attributes}>{children}</h1>
             case 'heading-two':
                return <h2 style={{textAlign: "left"}} {...attributes}>{children}</h2>
-            case 'list-item':
+            case 'list-item': 
                return <li style={{textAlign: "left"}} {...attributes}>{children}</li>
             case 'numbered-list':
                return <ol style={{textAlign: "left"}} {...attributes}>{children}</ol>
