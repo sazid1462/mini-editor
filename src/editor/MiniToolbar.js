@@ -4,7 +4,7 @@ import imageExtensions from 'image-extensions'
 import { Value, Block } from 'slate'
 
 import initialValue from '../resources/value'
-import { Button, Icon, Toolbar } from './components'
+import { Button, Icon, Toolbar, Input } from './components'
 import MiniEditor from './Editor'
 
 
@@ -36,6 +36,7 @@ export default class MiniToolbar extends Component<Props, State> {
          {this.renderMarkButton('italic', 'format_italic')}
          {this.renderMarkButton('underlined', 'format_underlined')}
          {this.renderMarkButton('code', 'code')}
+         {this.renderBlockButton('title', 'title')}
          {this.renderBlockButton('heading-one', 'looks_one')}
          {this.renderBlockButton('heading-two', 'looks_two')}
          {this.renderBlockButton('block-quote', 'format_quote')}
@@ -48,7 +49,7 @@ export default class MiniToolbar extends Component<Props, State> {
             <Icon>cloud_upload</Icon>
             <input ref="fileInput" type="file" id="file-input" onChange={this.onFileSelect} accept="image/*" multiple />
          </Button>
-         <Button active={this.props.documentIsChanged}
+         <Button active={this.props.documentIsChanged && this.props.documentIsValid}
             onMouseDown={this.onClickSave}>
             <Icon>save</Icon>
          </Button>
@@ -56,6 +57,9 @@ export default class MiniToolbar extends Component<Props, State> {
             onMouseDown={this.onClickRevertChanges}>
             <Icon>cancel</Icon>
          </Button>
+         <span><label>Blocks Limit:<Input type='checkbox' active={this.props.isLimit} onChange={this.onClickLimit} checked={this.props.isLimit}
+            onMouseDown={this.onClickRevertChanges} style={{height: '15px', width: '20px', marginLeft: '5px'}}/></label></span>
+         {this.renderBlocksLimitInputBox()}
       </Toolbar>
    }
 
@@ -79,6 +83,16 @@ export default class MiniToolbar extends Component<Props, State> {
    hasBlock = (type: string) => {
       const { value } = this.props.context.state
       return value.blocks.some(node => node.type == type)
+   }
+
+   renderBlocksLimitInputBox = () => {
+      if (this.props.isLimit) {
+         return <span><label>Maximum Blocks:<Input type='number' min={1} value={this.props.blocksLimit} onChange={this.onBlocksLimitChange}
+            style={{position: 'absolute', padding: '10px', marginLeft: '5px', height: '20px', width: '100px'}}/></label></span>
+      } else {
+         // return <span style={{position: 'absolute', width: '200px'}}></span>
+         return null
+      }
    }
 
    /**
@@ -144,12 +158,21 @@ export default class MiniToolbar extends Component<Props, State> {
       }
    }
 
+   onClickLimit = (event: any) => {
+      this.props.context.setIsBlocksLimit(event.target.checked)
+   }
+
+   onBlocksLimitChange = (event: any) => {
+      console.log(event)
+      this.props.context.setBlocksLimit(event.target.value)
+   }
+
    onClickSave = (event: Event) => {
       event.preventDefault()
       const contentJSON = this.props.context.state.value.toJSON()
-      const content = JSON.stringify(contentJSON)
+      const content = JSON.stringify({blocksLimit: this.props.blocksLimit, isLimit: this.props.isLimit, value: contentJSON})
       localStorage.setItem('content', content)
-      this.props.context.updateContent(contentJSON)
+      this.props.context.updateContent({blocksLimit: this.props.blocksLimit, isLimit: this.props.isLimit, value: contentJSON})
    }
 
    onClickRevertChanges = (event: Event) => {

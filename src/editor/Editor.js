@@ -9,14 +9,18 @@ import KeyPressPlugin from '../plugins/keypress-plugin'
 import NodeRenderer from '../plugins/node-renderer'
 import MarkRenderer from '../plugins/mark-renderer'
 import DropPastePlugin from '../plugins/drop-paste-plugin'
+import TopBlocksCount from '../plugins/top-block-nodes-counter'
 import MiniToolbar from './MiniToolbar'
 
 type Props = any;
 type State = {
    value: Value,
+   isLimit: boolean,
+   blocksLimit: number,
    oldJSONValue: Value,
    newJSONValue: Value,
    documentIsChanged: boolean,
+   documentIsValid: boolean,
    editor: Editor
 };
 
@@ -28,7 +32,8 @@ export default class MiniEditor extends Component<Props, State> {
       NodeRenderer(),
       MarkRenderer(),
       DropPastePlugin({ handlerType: 'onDrop', insertImage: this.insertImage }),
-      DropPastePlugin({ handlerType: 'onPaste', insertImage: this.insertImage })
+      DropPastePlugin({ handlerType: 'onPaste', insertImage: this.insertImage }),
+      TopBlocksCount()
    ]
    
    constructor(props: Props) {
@@ -42,23 +47,48 @@ export default class MiniEditor extends Component<Props, State> {
             existingValue = null
          }
       }
+      let storedJSON = existingValue || initialValue
       // Set the initial value when the app is first constructed.
-      let  value = Value.fromJSON(existingValue || initialValue)
+      let  value = Value.fromJSON(storedJSON.value)
       this.state = {
-         oldJSONValue: existingValue || initialValue,
-         newJSONValue: existingValue || initialValue,
+         oldJSONValue: storedJSON,
+         newJSONValue: storedJSON,
          value: value,
+         isLimit: storedJSON.isLimit,
+         blocksLimit: storedJSON.blocksLimit,
          documentIsChanged: false,
+         documentIsValid: true,
          editor: {}
       }
    }
 
    reloadContent = () => {
-      this.setState({value: Value.fromJSON(this.state.oldJSONValue), newJSONValue: this.state.oldJSONValue, documentIsChanged: false})
+      this.setState({
+         value: Value.fromJSON(this.state.oldJSONValue.value), 
+         newJSONValue: this.state.oldJSONValue, 
+         documentIsValid: true,
+         isLimit: this.state.oldJSONValue.isLimit,
+         blocksLimit: this.state.oldJSONValue.blocksLimit,
+         documentIsChanged: false
+      })
    }
 
    updateContent = (content: JSON) => {
       this.setState({oldJSONValue: content, newJSONValue: content, documentIsChanged: false})
+   }
+
+   setIsBlocksLimit = (isLimit: boolean) => {
+      let newJSONValue = Object.assign({}, this.state.oldJSONValue, {isLimit: isLimit})
+      let documentIsChanged = JSON.stringify(newJSONValue) != JSON.stringify(this.state.oldJSONValue)
+      let documentIsValid = !(this.state.isLimit && (this.editor.getBlocksCount() > this.state.blocksLimit))
+      this.setState({isLimit: isLimit, newJSONValue: newJSONValue, documentIsChanged: documentIsChanged, documentIsValid: documentIsValid})
+   }
+
+   setBlocksLimit = (limit: number) => {
+      let newJSONValue = Object.assign({}, this.state.oldJSONValue, {blocksLimit: limit})
+      let documentIsChanged = JSON.stringify(newJSONValue) != JSON.stringify(this.state.oldJSONValue)
+      let documentIsValid = !(this.state.isLimit && (this.editor.getBlocksCount() > limit))
+      this.setState({blocksLimit: limit, newJSONValue: newJSONValue, documentIsChanged: documentIsChanged, documentIsValid: documentIsValid})
    }
 
    /**
@@ -98,7 +128,8 @@ export default class MiniEditor extends Component<Props, State> {
    render() {
       return (
          <div>
-            <MiniToolbar editor={this.state.editor} context={this} documentIsChanged={this.state.documentIsChanged} />
+            <MiniToolbar editor={this.state.editor} context={this} isLimit={this.state.isLimit} blocksLimit={this.state.blocksLimit}
+               documentIsChanged={this.state.documentIsChanged} documentIsValid={this.state.documentIsValid} />
             <Editor
                spellCheck
                autoFocus
@@ -118,8 +149,10 @@ export default class MiniEditor extends Component<Props, State> {
     * @param {Editor} editor
     */
    onChange = ({ value }: { value: Value }) => {
-      let newJSONValue = value.toJSON()
+      let newJSONValue = {blocksLimit: this.state.blocksLimit, isLimit: this.state.isLimit, value: value.toJSON()}
       let documentIsChanged = JSON.stringify(newJSONValue) != JSON.stringify(this.state.oldJSONValue)
-      this.setState({ value: value, documentIsChanged: documentIsChanged, newJSONValue: newJSONValue })
+      let documentIsValid = !(this.state.isLimit && (this.editor.getBlocksCount() > this.state.blocksLimit))
+      console.log(value.toJSON())
+      this.setState({ value: value, documentIsChanged: documentIsChanged, newJSONValue: newJSONValue, documentIsValid: documentIsValid })
    }
 }

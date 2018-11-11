@@ -9,6 +9,9 @@ export const Button = styled('span')`
          : props.active ? 'black' : '#ccc'};
 `
 
+export const Input = styled('input')`
+`
+
 export const Icon = styled(({ className, ...rest }) => {
    return <span className={`material-icons ${className}`} {...rest} />
 })`
@@ -26,9 +29,9 @@ export const Menu = styled('div')`
 `
 
 export const Toolbar = styled(Menu)`
-  position: relative;
-  padding: 1px 18px 17px;
-  margin: 0 -20px;
-  border-bottom: 2px solid #eee;
-  margin-bottom: 20px;
+   position: relative;
+   padding: 0px 18px 10px;
+   margin: 0px -20px;
+   border-bottom: 2px solid #bfbfbf;
+   margin-bottom: 20px;
 `

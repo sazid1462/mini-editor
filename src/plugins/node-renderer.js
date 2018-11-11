@@ -49,6 +49,7 @@ export default function NodeRenderer(options: any) {
                const src = node.data.get('src')
                return <span style={{width: '100%', display: "inline-block"}}>
                   <Image style={{margin: "auto"}} src={src} selected={isFocused} {...attributes} />
+                  {children}
                </span>
             }
             default:
