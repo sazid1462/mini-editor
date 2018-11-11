@@ -28,6 +28,9 @@ export default class MiniToolbar extends Component<Props, State> {
    }
 
    render() {
+      // if (this.editor && this.editor.value)
+      //    console.log(this.editor.value.document.text, this.props.context.state.value.document.text)
+      // let isChanged = (this.editor && this.editor.value) ? this.editor.value.document.text != this.props.context.state.value.document.text : false
       return <Toolbar>
          {this.renderMarkButton('bold', 'format_bold')}
          {this.renderMarkButton('italic', 'format_italic')}
@@ -44,6 +47,14 @@ export default class MiniToolbar extends Component<Props, State> {
          <Button onMouseDown={this.onClickUpload}>
             <Icon>cloud_upload</Icon>
             <input ref="fileInput" type="file" id="file-input" onChange={this.onFileSelect} accept="image/*" multiple />
+         </Button>
+         <Button active={this.props.documentIsChanged}
+            onMouseDown={this.onClickSave}>
+            <Icon>save</Icon>
+         </Button>
+         <Button active={this.props.documentIsChanged}
+            onMouseDown={this.onClickRevertChanges}>
+            <Icon>cancel</Icon>
          </Button>
       </Toolbar>
    }
@@ -131,6 +142,19 @@ export default class MiniToolbar extends Component<Props, State> {
 
          reader.readAsDataURL(file)
       }
+   }
+
+   onClickSave = (event: Event) => {
+      event.preventDefault()
+      const contentJSON = this.props.context.state.value.toJSON()
+      const content = JSON.stringify(contentJSON)
+      localStorage.setItem('content', content)
+      this.props.context.updateContent(contentJSON)
+   }
+
+   onClickRevertChanges = (event: Event) => {
+      event.preventDefault()
+      this.props.context.reloadContent()
    }
 
    /**

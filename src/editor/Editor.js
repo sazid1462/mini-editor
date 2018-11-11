@@ -14,16 +14,14 @@ import MiniToolbar from './MiniToolbar'
 type Props = any;
 type State = {
    value: Value,
+   oldJSONValue: Value,
+   newJSONValue: Value,
+   documentIsChanged: boolean,
    editor: Editor
 };
 
 // Define our editor...
 export default class MiniEditor extends Component<Props, State> {
-   // Set the initial value when the app is first constructed.
-   state = {
-      value: Value.fromJSON(initialValue),
-      editor: {}
-   };
    editor: Editor = {}
    plugins = [
       KeyPressPlugin(),
@@ -32,6 +30,36 @@ export default class MiniEditor extends Component<Props, State> {
       DropPastePlugin({ handlerType: 'onDrop', insertImage: this.insertImage }),
       DropPastePlugin({ handlerType: 'onPaste', insertImage: this.insertImage })
    ]
+   
+   constructor(props: Props) {
+      super(props)
+      let existingValue: any = localStorage.getItem('content')
+      if (existingValue) {
+         try {
+            existingValue = JSON.parse(existingValue)
+         } catch (e) {
+            console.log('Corrupted local storage value!')
+            existingValue = null
+         }
+      }
+      // Set the initial value when the app is first constructed.
+      let  value = Value.fromJSON(existingValue || initialValue)
+      this.state = {
+         oldJSONValue: existingValue || initialValue,
+         newJSONValue: existingValue || initialValue,
+         value: value,
+         documentIsChanged: false,
+         editor: {}
+      }
+   }
+
+   reloadContent = () => {
+      this.setState({value: Value.fromJSON(this.state.oldJSONValue), newJSONValue: this.state.oldJSONValue, documentIsChanged: false})
+   }
+
+   updateContent = (content: JSON) => {
+      this.setState({oldJSONValue: content, newJSONValue: content, documentIsChanged: false})
+   }
 
    /**
     * A change function to standardize inserting images.
@@ -70,7 +98,7 @@ export default class MiniEditor extends Component<Props, State> {
    render() {
       return (
          <div>
-            <MiniToolbar editor={this.state.editor} context={this} />
+            <MiniToolbar editor={this.state.editor} context={this} documentIsChanged={this.state.documentIsChanged} />
             <Editor
                spellCheck
                autoFocus
@@ -90,6 +118,8 @@ export default class MiniEditor extends Component<Props, State> {
     * @param {Editor} editor
     */
    onChange = ({ value }: { value: Value }) => {
-      this.setState({ value })
+      let newJSONValue = value.toJSON()
+      let documentIsChanged = JSON.stringify(newJSONValue) != JSON.stringify(this.state.oldJSONValue)
+      this.setState({ value: value, documentIsChanged: documentIsChanged, newJSONValue: newJSONValue })
    }
 }
