@@ -90,7 +90,7 @@ export default class MiniEditor extends Component<Props, State> {
    setIsBlocksLimit = (isLimit: boolean) => {
       let newJSONValue = Object.assign({}, this.state.oldJSONValue, {isLimit: isLimit})
       let documentIsChanged = JSON.stringify(newJSONValue) != JSON.stringify(this.state.oldJSONValue)
-      let documentIsValid = !(isLimit && (this.editor.getBlocksCount() > this.state.blocksLimit))
+      let documentIsValid = !(isLimit && (this.editor.getBlocksCount(newJSONValue.value.document.nodes) > this.state.blocksLimit))
       this.setState({isLimit: isLimit, newJSONValue: newJSONValue, documentIsChanged: documentIsChanged, documentIsValid: documentIsValid})
    }
 
@@ -100,7 +100,7 @@ export default class MiniEditor extends Component<Props, State> {
    setBlocksLimit = (limit: number) => {
       let newJSONValue = Object.assign({}, this.state.oldJSONValue, {blocksLimit: limit})
       let documentIsChanged = JSON.stringify(newJSONValue) != JSON.stringify(this.state.oldJSONValue)
-      let documentIsValid = !(this.state.isLimit && (this.editor.getBlocksCount() > limit))
+      let documentIsValid = !(this.state.isLimit && (this.editor.getBlocksCount(newJSONValue.value.document.nodes) > limit))
       this.setState({blocksLimit: limit, newJSONValue: newJSONValue, documentIsChanged: documentIsChanged, documentIsValid: documentIsValid})
    }
 
