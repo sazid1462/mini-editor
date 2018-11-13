@@ -27,16 +27,17 @@ export default class MiniToolbar extends Component<Props, State> {
 
    render() {
       return <Toolbar>
-         {this.renderMarkButton('bold', 'format_bold')}
-         {this.renderMarkButton('italic', 'format_italic')}
-         {this.renderMarkButton('underlined', 'format_underlined')}
-         {this.renderMarkButton('code', 'code')}
-         {this.renderBlockButton('title', 'title')}
-         {this.renderBlockButton('heading-one', 'looks_one')}
-         {this.renderBlockButton('heading-two', 'looks_two')}
-         {this.renderBlockButton('block-quote', 'format_quote')}
-         {this.renderBlockButton('numbered-list', 'format_list_numbered')}
-         {this.renderBlockButton('bulleted-list', 'format_list_bulleted')}
+         {this.renderMarkButton('Bold', 'bold', 'format_bold')}
+         {this.renderMarkButton('Italic', 'italic', 'format_italic')}
+         {this.renderMarkButton('Underlined', 'underlined', 'format_underlined')}
+         {this.renderMarkButton('Code', 'code', 'code')}
+         {this.renderBlockButton('Paragraph', 'paragraph', 'short_text')}
+         {this.renderBlockButton('Title', 'title', 'title')}
+         {this.renderBlockButton('Heading One', 'heading-one', 'looks_one')}
+         {this.renderBlockButton('Heading Two', 'heading-two', 'looks_two')}
+         {this.renderBlockButton('Block Quote', 'block-quote', 'format_quote')}
+         {this.renderBlockButton('Numbered List', 'numbered-list', 'format_list_numbered')}
+         {this.renderBlockButton('Bulleted List', 'bulleted-list', 'format_list_bulleted')}
          <Button onMouseDown={this.onClickImage} active={true}>
             <Icon>image</Icon>
          </Button>
@@ -78,6 +79,12 @@ export default class MiniToolbar extends Component<Props, State> {
       return value.blocks.some(node => node.type == type)
    }
 
+   hasListTypeParent = (document: any, node: any) => {
+      let parentNode = document.getClosest(node.key, parent => 
+         (parent.type=='bulleted-list' || parent.type=='numbered-list'))
+      return parentNode
+   }
+
    /**
     * Render the input box to set the maximum number of allowed top level blocks
     */
@@ -96,12 +103,13 @@ export default class MiniToolbar extends Component<Props, State> {
    *
    * @return {Element}
    */
-   renderMarkButton = (type: string, icon: string) => {
+   renderMarkButton = (title: string, type: string, icon: string) => {
       const isActive = this.hasMark(type)
 
       return (
          <Button
             active={isActive}
+            title={title}
             onMouseDown={event => this.onClickMark(event, type)}
          >
             <Icon>{icon}</Icon>
@@ -114,7 +122,7 @@ export default class MiniToolbar extends Component<Props, State> {
     *
     * @return {Element}
     */
-   renderBlockButton = (type: string, icon: string) => {
+   renderBlockButton = (title: string, type: string, icon: string) => {
       let isActive = this.hasBlock(type)
 
       if (['numbered-list', 'bulleted-list'].includes(type)) {
@@ -126,6 +134,7 @@ export default class MiniToolbar extends Component<Props, State> {
       return (
          <Button
             active={isActive}
+            title={title}
             onMouseDown={event => this.onClickBlock(event, type)}
          >
             <Icon>{icon}</Icon>
@@ -227,12 +236,18 @@ export default class MiniToolbar extends Component<Props, State> {
       if (type != 'bulleted-list' && type != 'numbered-list') {
          const isActive = this.hasBlock(type)
          const isList = this.hasBlock('list-item')
-
          if (isList) {
-            editor
-               .setBlocks(isActive ? DEFAULT_NODE : type)
-               .unwrapBlock('bulleted-list')
-               .unwrapBlock('numbered-list')
+            let parentNode = document.getClosest(editor.value.focusBlock.key, parent => 
+               (parent.type=='bulleted-list' || parent.type=='numbered-list'))
+            while (parentNode) {
+               const parentType = parentNode.type
+               editor
+                  .setBlocks(isActive ? DEFAULT_NODE : type)
+                  .unwrapBlock(parentType)
+                  // .unwrapBlock('numbered-list')
+               parentNode = document.getClosest(parentNode.key, parent => 
+                  (parent.type=='bulleted-list' || parent.type=='numbered-list'))
+            }
          } else {
             editor.setBlocks(isActive ? DEFAULT_NODE : type)
          }
@@ -244,15 +259,19 @@ export default class MiniToolbar extends Component<Props, State> {
          })
 
          if (isList && isType) {
+            let parentNode = document.getClosest(editor.value.focusBlock.key, parent => 
+               (parent.type=='bulleted-list' || parent.type=='numbered-list'))
+            const parentType = parentNode.type
             editor
-               .setBlocks(DEFAULT_NODE)
-               .unwrapBlock('bulleted-list')
-               .unwrapBlock('numbered-list')
+               .setBlocks(this.hasListTypeParent(document, parentNode)  ? 'list-item' : DEFAULT_NODE)
+               .unwrapBlock(parentType)
+               // .unwrapBlock('numbered-list')
          } else if (isList) {
             editor
                .unwrapBlock(
                   type == 'bulleted-list' ? 'numbered-list' : 'bulleted-list'
                )
+               .setBlocks('list-item')
                .wrapBlock(type)
          } else {
             editor.setBlocks('list-item').wrapBlock(type)
