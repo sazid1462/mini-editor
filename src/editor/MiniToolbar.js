@@ -232,6 +232,8 @@ export default class MiniToolbar extends Component<Props, State> {
       const { value } = editor
       const { document } = value
 
+      if (editor.value.focusBlock.type == 'image') return
+
       // Handle everything but list buttons.
       if (type != 'bulleted-list' && type != 'numbered-list') {
          const isActive = this.hasBlock(type)
